@@ -1,0 +1,24 @@
+<div class="shell">
+  <header class="header">
+    <div class="brand">{{ title }}</div>
+    <span class="badge">Angular</span>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <h1>Willkommen im neuen Frontend</h1>
+      <p>
+        Diese Anwendung bildet die Grundlage für das Chatbot-Frontend. Hier können wir
+        Dialoge, Statusanzeigen und Integrationen aufbauen.
+      </p>
+      <button class="primary">Zum Chat</button>
+    </section>
+
+    <section class="panel">
+      <h2>Highlights</h2>
+      <ul>
+        <li *ngFor="let item of highlights">{{ item }}</li>
+      </ul>
+    </section>
+  </main>
+</div>
