@@ -1,0 +1,41 @@
+{
+  "name": "chatbot-project-2-frontend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/chatbot-project-2-frontend/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "browser",
+        "outputPath": "dist/apps/chatbot-project-2-frontend",
+        "format": ["esm"],
+        "bundle": true,
+        "main": "apps/chatbot-project-2-frontend/src/main.ts",
+        "tsConfig": "apps/chatbot-project-2-frontend/tsconfig.app.json",
+        "assets": [
+          "apps/chatbot-project-2-frontend/src/assets",
+          {
+            "input": "apps/chatbot-project-2-frontend/src",
+            "glob": "index.html",
+            "output": "."
+          }
+        ],
+        "esbuildOptions": {
+          "sourcemap": true
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "esbuildOptions": {
+            "sourcemap": false
+          }
+        }
+      }
+    }
+  }
+}
