@@ -17,12 +17,10 @@ function toBase64(data: Buffer): string {
 }
 
 export default fp(async function realtimeTranslate(fastify: FastifyInstance) {
-  fastify.register(fastifyWebsocket);
+  await fastify.register(fastifyWebsocket);
 
-  fastify.get(
-    '/ws/translate',
-    { websocket: true },
-    (connection, request) => {
+  fastify.get('/ws/translate',{ websocket: true },(connection, request) => {
+      console.log('Neue WebSocket-Verbindung für Echtzeit-Übersetzung hergestellt.');
       const apiKey = process.env.OPENAI_API_KEY;
 
       if (!apiKey) {
