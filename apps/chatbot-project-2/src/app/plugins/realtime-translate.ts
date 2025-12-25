@@ -26,13 +26,13 @@ export default fp(async function realtimeTranslate(fastify: FastifyInstance) {
       const apiKey = process.env.OPENAI_API_KEY;
 
       if (!apiKey) {
-        connection.socket.send(
+        connection.send(
           JSON.stringify({
             type: 'error',
             message: 'OPENAI_API_KEY ist nicht gesetzt.',
           })
         );
-        connection.socket.close();
+        connection.close();
         return;
       }
 
@@ -68,26 +68,26 @@ export default fp(async function realtimeTranslate(fastify: FastifyInstance) {
             },
           })
         );
-        connection.socket.send(JSON.stringify({ type: 'ready' }));
+        connection.send(JSON.stringify({ type: 'ready' }));
       });
 
       openAiSocket.on('message', (data) => {
         const message = JSON.parse(data.toString()) as OpenAiEvent;
 
         if (message.type === 'response.audio.delta' && message.delta) {
-          connection.socket.send(
+          connection.send(
             JSON.stringify({ type: 'audio', delta: message.delta })
           );
         }
 
         if (message.type === 'response.text.delta' && message.delta) {
-          connection.socket.send(
+          connection.send(
             JSON.stringify({ type: 'text', delta: message.delta })
           );
         }
 
         if (message.type === 'error') {
-          connection.socket.send(
+          connection.send(
             JSON.stringify({
               type: 'error',
               message: message.error?.message ?? 'OpenAI Fehler.',
@@ -97,12 +97,12 @@ export default fp(async function realtimeTranslate(fastify: FastifyInstance) {
       });
 
       openAiSocket.on('close', () => {
-        if (connection.socket.readyState === connection.socket.OPEN) {
-          connection.socket.close();
+        if (connection.readyState === connection.OPEN) {
+          connection.close();
         }
       });
 
-      connection.socket.on('message', (message: WebSocket.RawData) => {
+      connection.on('message', (message: WebSocket.RawData) => {
         if (typeof message === 'string') {
           const payload = JSON.parse(message) as { type: string };
           if (payload.type === 'stop') {
@@ -130,13 +130,13 @@ export default fp(async function realtimeTranslate(fastify: FastifyInstance) {
         });
       });
 
-      connection.socket.on('close', () => {
+      connection.on('close', () => {
         if (openAiSocket.readyState === openAiSocket.OPEN) {
           openAiSocket.close();
         }
       });
 
-      connection.socket.on('error', (err) => {
+      connection.on('error', (err) => {
         request.log.error(err);
       });
     }
