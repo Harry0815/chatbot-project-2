@@ -1,0 +1,63 @@
+{
+  "name": "chatbot-project-2",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/chatbot-project-2/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/apps/chatbot-project-2",
+        "format": ["cjs"],
+        "bundle": false,
+        "main": "apps/chatbot-project-2/src/main.ts",
+        "tsConfig": "apps/chatbot-project-2/tsconfig.app.json",
+        "assets": ["apps/chatbot-project-2/src/assets"],
+        "generatePackageJson": true,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "generateLockfile": true,
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "chatbot-project-2:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "chatbot-project-2:build:development"
+        },
+        "production": {
+          "buildTarget": "chatbot-project-2:build:production"
+        }
+      }
+    },
+    "docker-build": {
+      "dependsOn": ["build"],
+      "command": "docker build -f apps/chatbot-project-2/Dockerfile . -t chatbot-project-2"
+    }
+  }
+}
