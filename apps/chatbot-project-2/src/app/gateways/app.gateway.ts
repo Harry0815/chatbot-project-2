@@ -1,5 +1,5 @@
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway } from '@nestjs/websockets';
-import { WebSocket } from 'ws';
+import { RawData, WebSocket } from 'ws';
 import { AppHelperService } from '../helpers/app.helper.service';
 
 type OpenAiEvent = {
@@ -23,8 +23,9 @@ function toBase64(data: Buffer): string {
 @WebSocketGateway({ path: '/ws/translate' })
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly sessions = new Map<WebSocket, ClientSession>();
+  private readonly helper: AppHelperService = new AppHelperService();
 
-  constructor(private readonly helper: AppHelperService) {}
+  constructor() { /* empty */ }
 
   handleConnection(client: WebSocket) {
     const apiKey = process.env.OPENAI_API_KEY;
@@ -103,7 +104,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     });
 
-    client.on('message', (message: WebSocket.RawData) => {
+    client.on('message', (message: RawData) => {
       if (typeof message === 'string') {
         const payload = JSON.parse(message) as { type: string };
         if (payload.type === 'stop') {

@@ -3,7 +3,9 @@ import { AppHelperService } from '../helpers/app.helper.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly helper: AppHelperService) {}
+  private readonly helper: AppHelperService = new AppHelperService();
+
+  constructor() { /* empty */ }
 
   @Get()
   getRoot() {
