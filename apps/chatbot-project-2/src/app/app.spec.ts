@@ -1,20 +1,35 @@
-import Fastify, { FastifyInstance } from 'fastify';
-import { app } from './app';
+import { Test } from '@nestjs/testing';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { AppModule } from './app.module';
 
-describe('GET /', () => {
-  let server: FastifyInstance;
+describe('AppController', () => {
+  let app: NestFastifyApplication;
 
-  beforeEach(() => {
-    server = Fastify();
-    server.register(app);
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleRef.createNestApplication<NestFastifyApplication>(
+      new FastifyAdapter(),
+    );
+    await app.init();
+    await app.getHttpAdapter().getInstance().ready();
   });
 
-  it('should respond with a message', async () => {
-    const response = await server.inject({
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('should respond with status payload', async () => {
+    const response = await app.inject({
       method: 'GET',
-      url: '/',
+      url: '/api/status',
     });
 
-    expect(response.json()).toEqual({ message: 'Hello API' });
+    expect(response.json()).toEqual({
+      status: 'ok',
+      timestamp: expect.any(String),
+    });
   });
 });

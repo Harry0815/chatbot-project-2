@@ -5,6 +5,10 @@ describe('GET /', () => {
     const res = await axios.get(`/`);
 
     expect(res.status).toBe(200);
-    expect(res.data).toEqual({ message: 'Hello API' });
+    expect(res.data).toEqual({
+      message: 'Simultandolmetscher API',
+      translator: '/translator',
+      websocket: '/ws/translate',
+    });
   });
 });
