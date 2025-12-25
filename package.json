@@ -7,9 +7,11 @@
   "dependencies": {
     "@fastify/autoload": "~5.7.1",
     "@fastify/sensible": "~5.2.0",
+    "@fastify/websocket": "^10.0.1",
     "axios": "^1.6.0",
     "fastify": "~4.13.0",
-    "fastify-plugin": "~4.5.0"
+    "fastify-plugin": "~4.5.0",
+    "ws": "^8.17.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
@@ -25,6 +27,7 @@
     "@swc/helpers": "~0.5.11",
     "@types/jest": "^29.5.12",
     "@types/node": "~18.16.9",
+    "@types/ws": "^8.5.12",
     "esbuild": "^0.19.2",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.0.0",
