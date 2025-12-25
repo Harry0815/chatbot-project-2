@@ -207,59 +207,81 @@ const html = `<!doctype html>
       const log = document.getElementById('log');
       const status = document.getElementById('statusText');
       const statusDot = document.getElementById('statusDot');
-      let audioContext;
-      let processor;
-      let inputStream;
-      let socket;
-      let isStreaming = false;
 
-      function appendLog(text) {
-        const placeholder = log.querySelector('.log-placeholder');
-        if (placeholder) {
-          placeholder.remove();
-        }
-        log.textContent += text;
-      }
+// ... existing code ...
+          let audioContext;
+          let processor;
+          let inputStream;
+          let socket;
+          let isStreaming = false;
 
-      function setStatus(text) {
-        status.textContent = 'Status: ' + text;
-      }
+          // Audio-Queue für sequenzielle Wiedergabe
+          const audioQueue = [];
+          let isPlaying = false;
 
-      function setStatusDot(isActive) {
-        if (!statusDot) return;
-        statusDot.classList.toggle('active', isActive);
-      }
+          function appendLog(text) {
+            const placeholder = log.querySelector('.log-placeholder');
+            if (placeholder) {
+              placeholder.remove();
+            }
+            log.textContent += text;
+          }
 
-      function floatTo16BitPCM(float32) {
-        const buffer = new ArrayBuffer(float32.length * 2);
-        const view = new DataView(buffer);
-        let offset = 0;
-        for (let i = 0; i < float32.length; i++) {
-          let s = Math.max(-1, Math.min(1, float32[i]));
-          view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
-          offset += 2;
-        }
-        return buffer;
-      }
+          function setStatus(text) {
+            status.textContent = 'Status: ' + text;
+          }
 
-      function playPcm(base64Audio) {
-        const binary = atob(base64Audio);
-        const buffer = new ArrayBuffer(binary.length);
-        const view = new Uint8Array(buffer);
-        for (let i = 0; i < binary.length; i++) {
-          view[i] = binary.charCodeAt(i);
-        }
-        const pcm16 = new Int16Array(buffer);
-        const audioBuffer = audioContext.createBuffer(1, pcm16.length, 24000);
-        const channelData = audioBuffer.getChannelData(0);
-        for (let i = 0; i < pcm16.length; i++) {
-          channelData[i] = pcm16[i] / 0x8000;
-        }
-        const source = audioContext.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(audioContext.destination);
-        source.start();
-      }
+          function setStatusDot(isActive) {
+            if (!statusDot) return;
+            statusDot.classList.toggle('active', isActive);
+          }
+
+          function floatTo16BitPCM(float32) {
+            const buffer = new ArrayBuffer(float32.length * 2);
+            const view = new DataView(buffer);
+            let offset = 0;
+            for (let i = 0; i < float32.length; i++) {
+              let s = Math.max(-1, Math.min(1, float32[i]));
+              view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+              offset += 2;
+            }
+            return buffer;
+          }
+
+          function playNext() {
+            if (audioQueue.length === 0) {
+              isPlaying = false;
+              return;
+            }
+            isPlaying = true;
+            const base64Audio = audioQueue.shift();
+            const binary = atob(base64Audio);
+            const buffer = new ArrayBuffer(binary.length);
+            const view = new Uint8Array(buffer);
+            for (let i = 0; i < binary.length; i++) {
+              view[i] = binary.charCodeAt(i);
+            }
+            const pcm16 = new Int16Array(buffer);
+            const audioBuffer = audioContext.createBuffer(1, pcm16.length, 24000);
+            const channelData = audioBuffer.getChannelData(0);
+            for (let i = 0; i < pcm16.length; i++) {
+              channelData[i] = pcm16[i] / 0x8000;
+            }
+            const source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(audioContext.destination);
+            source.onended = playNext;
+            source.start();
+          }
+
+          function playPcm(base64Audio) {
+            audioQueue.push(base64Audio);
+            if (!isPlaying) {
+              playNext();
+            }
+          }
+
+// ... existing code ...
 
       async function start() {
         if (isStreaming) return;
