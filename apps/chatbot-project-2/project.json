@@ -6,45 +6,43 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "executor": "@nx/angular:webpack-browser",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "platform": "node",
         "outputPath": "dist/apps/chatbot-project-2",
-        "format": ["cjs"],
-        "bundle": false,
+        "index": "apps/chatbot-project-2/src/index.html",
         "main": "apps/chatbot-project-2/src/main.ts",
+        "polyfills": "apps/chatbot-project-2/src/polyfills.ts",
         "tsConfig": "apps/chatbot-project-2/tsconfig.app.json",
         "assets": ["apps/chatbot-project-2/src/assets"],
-        "generatePackageJson": true,
-        "esbuildOptions": {
-          "sourcemap": true,
-          "outExtension": {
-            ".js": ".js"
-          }
-        }
+        "styles": ["apps/chatbot-project-2/src/styles.css"],
+        "scripts": []
       },
       "configurations": {
-        "development": {},
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "vendorChunk": true,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        },
         "production": {
-          "generateLockfile": true,
-          "esbuildOptions": {
-            "sourcemap": false,
-            "outExtension": {
-              ".js": ".js"
-            }
-          }
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
         }
       }
     },
     "serve": {
-      "executor": "@nx/js:node",
+      "executor": "@nx/angular:dev-server",
       "defaultConfiguration": "development",
-      "dependsOn": ["build"],
       "options": {
-        "buildTarget": "chatbot-project-2:build",
-        "runBuildTargetDependencies": false
+        "buildTarget": "chatbot-project-2:build"
       },
       "configurations": {
         "development": {
@@ -54,10 +52,6 @@
           "buildTarget": "chatbot-project-2:build:production"
         }
       }
-    },
-    "docker-build": {
-      "dependsOn": ["build"],
-      "command": "docker build -f apps/chatbot-project-2/Dockerfile . -t chatbot-project-2"
     }
   }
 }
